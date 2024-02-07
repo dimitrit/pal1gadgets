@@ -1,0 +1,170 @@
+
+; KIM-1 standard addresses
+;
+inh		= $f9
+pointl		= $fa
+pointh		= $fb
+temp		= $fc
+;
+scands		= $1f1f
+irql		= $17fe
+irqh		= $17ff
+;
+; 6532 RIOT
+;
+pad		= $1700			; 003 A data register
+padd		= $1701			; 003 A data direction reg
+pbd		= $1702			; 003 B data register
+pbdd		= $1703			; 003 B data direction reg
+;
+sad		= $1740 		; 002 A data register
+sadd		= $1741			; 002 A data direction reg
+sbd		= $1742			; 002 B data register
+sbdd		= $1743			; 002 B data direction reg
+
+;
+		* = $0200
+
+		lda #0			; init time to 12:34:00
+		sta inh
+		lda #$34
+		sta pointh		; store mins
+		lda #$12
+		sta pointl		; store hours
+;
+		jsr initrtc
+;
+		jsr reset3w		; burst write time
+		lda #$80
+		jsr writeb3w
+		lda inh			; write sec
+		jsr writeb3w
+		lda pointh		; write min
+		jsr writeb3w
+		lda pointl		; write hour
+		jsr writeb3w
+		jsr reset3w
+;
+loop:		jsr reset3w		; burst read time
+		lda #0
+		jsr writeb3w
+		jsr readb3w		; read sec
+		sta inh
+		jsr readb3w		; read min
+		sta pointl
+		jsr readb3w		; read hour
+		sta pointh
+
+		jsr scands
+		jmp loop
+;
+;
+; **** DS1305 3-WIRE ROUTINES ****
+;
+; These routines expects the DS1305 RTC to be connected to the
+; 6532 RIOT as following:
+;
+;	PA0 --+-> SDI
+;	      +-> SDO
+;	PA1 ----> SCLK
+;	PA2 ----> CE
+;	PA7 <---- INT0
+;
+ce 		= %00000100		; PA2
+sclk		= %00000010		; PA1
+io		= %00000001		; PA0
+;
+; DS1305 registers
+;
+reg_rd		= 0			; register read flag
+reg_wr		= $80			; register write flag
+;
+sec_reg		= 0
+min_reg		= 1
+hour_reg	= 2
+day_reg		= 3			; day of week (1-7)
+date_reg	= 4			; day of month (1-31)
+mon_reg		= 5
+year_reg	= 6
+ctrl_reg	= $f
+stat_reg	= $10
+;
+;
+;
+reset3w:	lda #(ce|sclk|io)	; set RIOT data dirs
+		sta padd
+		lda #0			; lower all signals
+		sta pad
+		lda #(ce)		; raise ce
+		sta pad
+		rts
+;
+writeb3w:	sta temp		; save a
+		ldy #8
+:		lda temp
+		and #1			; keep only lsb
+		ora #(ce)		; add ce
+		and #(~sclk)		; lower sclk
+		sta pad
+		ora #(sclk)		; raise sclk
+		sta pad
+		ror temp		; shift value right
+		dey
+		bne :-			; process next bit
+		rts
+;
+readb3w:	lda #(ce|sclk)		; set RIOT data dirs
+		and #(~io)		; set io bit to input
+		sta padd
+		lda #0			; set value to 0
+		sta temp
+		ldy #8
+:		lda #(ce|sclk)		; raise sclk
+		sta pad
+		and #(~sclk)		; lower sclk
+		sta pad
+		lda pad			; read io wire
+		asl
+		asl
+		asl
+		asl
+		asl
+		asl
+		asl
+		ror temp
+		ora temp
+		sta temp
+		dey
+		bne :-
+		rts			; return value in a
+;
+initrtc:	jsr reset3w
+		lda #$8f		; clear WP bit
+		jsr writeb3w
+		lda #0
+		jsr writeb3w
+		jsr reset3w
+		lda #$8f		; clear /EOSC bit
+		jsr writeb3w
+		lda #0
+		jsr writeb3w
+		rts
+;
+; readbrtc:	jsr reset3w
+; 		txa
+; 		jsr writeb3w
+; 		jsr readb3w
+; 		sta temp
+; 		jsr reset3w
+; 		lda temp
+; 		rts
+; ;
+; writebrtc:	sta temp
+; 		jsr reset3w
+; 		txa
+; 		jsr writeb3w
+; 		lda temp
+; 		jsr writeb3w
+; 		jsr reset3w
+; 		rts
+
