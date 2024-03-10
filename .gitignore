@@ -49,6 +49,7 @@ fp-info-cache
 *.synctex.gz
 *.synctex.gz(busy)
 *.pdfsync
+**/gerbers
 
 # Misc other files
 .DS_Store
