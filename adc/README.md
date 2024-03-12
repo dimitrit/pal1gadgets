@@ -2,6 +2,8 @@
 
 The PAL1-ADC is an analog-to-digital converter for the PAL-1 system intended to plug in to the PAL-1 RIOT Expansion Module[^1].
 
+![PAL-1 A/D Converter gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/adc/docs/images/adc-front.png?raw=true)
+
 The analog-to-digital converter enables high throughput data capture (up to 200 kSPS). A small on-board prototype area facilitates experimentation. Refer to the AD7819 datasheet[^2] for details.
 
 [^1]: Liu Ganning, _‘RIOT EXPANSION’_, 2021 <http://pal.aibs.ws/assets/RIOT_expansion_manual.pdf> [accessed 26 January 2024].
