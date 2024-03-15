@@ -7,7 +7,7 @@
   (title_block
     (title "PAL-1 Real Time Clock")
     (date "Feb 2024")
-    (rev "1.0a")
+    (rev "${VERSION}")
     (company "Plastic Objects Limited")
   )
 
@@ -1257,7 +1257,7 @@
     (property "Value" "2N3904" (at 116.84 119.38 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline" (at 116.84 120.015 0)
+    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline_Wide" (at 116.84 120.015 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
     )
     (property "Datasheet" "https://www.onsemi.com/pub/Collateral/2N3903-D.PDF" (at 111.76 118.11 0)
