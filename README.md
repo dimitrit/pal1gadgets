@@ -4,8 +4,8 @@ The PAL-1 RIOT Expansion Module adds two bidirectional 8-bit digital input/outpu
 
 This repository includes a number of gadgets that can be plugged in to the RIOT Expansion Module to provide specific functionality, including:
 
-  * [a Real-Time Clock](../blob/master/rtc)
-  * [an Analog-to-Digital Converter](../blob/master/adc)
+  * [a Real-Time Clock](../../tree/master/rtc)
+  * [an Analog-to-Digital Converter](../tree/master/adc)
   * [IEC interface](../blob/master/iec)
 
 Refer to the relevant directories for details on each gadget.
