@@ -2,7 +2,7 @@
 
 PAL1-RTC is a real time clock/calendar for the PAL-1 system intended to plug in to the PAL-1 RIOT Expansion Module.[^1]
 
-![PAL-1 RTC gadget render](https://raw.githubusercontent.com/dimitrit/pal1gadgets/main/rtc/docs/images/rtc-front.png)
+![PAL-1 RTC gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/rtc/docs/figures/rtc-front.png?raw=true)
 
 The clock/calendar provides seconds, minutes, hours, day, date, month, and year information. The end of the month date is automatically adjusted for months with fewer than 31 days, including corrections for leap year. The clock operates in either the 24-hour or 12-hour format with AM/PM indicator. In addition, 96 bytes of NV RAM are provided for data storage. Refer to the DS1305 datasheet for details.[^2]
 

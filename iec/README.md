@@ -2,7 +2,7 @@
 
 The PAL1-IEC gadget is an IEC/Serial adapter for the PAL-1 system intended to plug in to the PAL-1 RIOT Expansion Module.[^1]
 
-![PAL-1 IEC gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/iec/docs/images/iec-front.png?raw=true)
+![PAL-1 IEC gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/iec/docs/figures/iec-front.png?raw=true)
 
 The IEC gadget allows Commodore disk storage devices and printers to be connected to the PAL-1. The schematic is based on an original design by D McMurtrie.[^2]
 
