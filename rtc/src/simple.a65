@@ -1,5 +1,10 @@
-
-; KIM-1 standard addresses
+;
+; SIMPLE.A65 - A small demo that initialises the DS1305 real time clock
+;              and then loops to retrieve the time from the DS1305,
+;              showing it on the PAL-1 7-segment display.
+;
+;
+; **** KIM-1 standard addresses ****
 ;
 inh		= $f9
 pointl		= $fa
@@ -10,7 +15,7 @@ scands		= $1f1f
 irql		= $17fe
 irqh		= $17ff
 ;
-; 6532 RIOT
+; **** 6532 RIOT ****
 ;
 pad		= $1700			; 003 A data register
 padd		= $1701			; 003 A data direction reg
@@ -21,11 +26,11 @@ sad		= $1740 		; 002 A data register
 sadd		= $1741			; 002 A data direction reg
 sbd		= $1742			; 002 B data register
 sbdd		= $1743			; 002 B data direction reg
-
+;
 ;
 		* = $0200
 
-		lda #0			; init time to 12:34:00
+		lda #$56		; init time to 12:34:56
 		sta inh
 		lda #$34
 		sta pointh		; store mins
@@ -149,22 +154,3 @@ initrtc:	jsr reset3w
 		lda #0
 		jsr writeb3w
 		rts
-;
-; readbrtc:	jsr reset3w
-; 		txa
-; 		jsr writeb3w
-; 		jsr readb3w
-; 		sta temp
-; 		jsr reset3w
-; 		lda temp
-; 		rts
-; ;
-; writebrtc:	sta temp
-; 		jsr reset3w
-; 		txa
-; 		jsr writeb3w
-; 		lda temp
-; 		jsr writeb3w
-; 		jsr reset3w
-; 		rts
-

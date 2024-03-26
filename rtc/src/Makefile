@@ -1,4 +1,4 @@
-target = simple.pap
+target = simple.pap buzzer.pap
 
 default: all
 

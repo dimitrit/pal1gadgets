@@ -1,0 +1,26 @@
+;
+; BUZZER.A65 - A small demo that sounds the buzzer. That's it.
+;
+;
+; **** 6532 RIOT ****
+;
+pbd		= $1702			; 003 B data register
+pbdd		= $1703			; 003 B data direction reg
+;
+;
+		* = $0200
+
+		lda #1			; init buzzer port
+		sta pbdd
+		sta pbd			; and sound buzzer
+
+loop		ldy #$ff		; waste some time
+:		ldx #$ff
+:		dex
+		bne :-
+		dey
+		bne :--
+		lda pbd
+		eor #1			; toggle buzzer
+		sta pbd
+		jmp loop		; and again
