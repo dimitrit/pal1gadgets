@@ -1,0 +1,51 @@
+(footprint "Potentiometer_Runtron_RM065_Vertical" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp fe69c541-b817-46c3-b3ca-ef121552e606)
+  )
+  (fp_text value "Potentiometer_Runtron_RM065_Vertical" (at 0 1 unlocked) (layer "F.Fab")
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 6713ba45-eb26-46ab-8e01-8c828003790e)
+  )
+  (fp_text user "${REFERENCE}" (at 0 2.5 unlocked) (layer "F.Fab")
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp f7f7f365-fd28-44f8-a2e7-2a011a437a25)
+  )
+  (fp_line (start -3.2 -6.1) (end -3.2 -9.4)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 18be6088-43af-4245-8065-87a70c8d22d7))
+  (fp_line (start -1.8 -10.8) (end -1 -10.8)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 05551453-3a94-4924-93a1-3af33c189f3e))
+  (fp_line (start -1.4 -4.4) (end 1.4 -4.4)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 48fe5938-a0a4-4112-be3b-f306af368494))
+  (fp_line (start 1 -10.8) (end 1.8 -10.8)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp b235b9b0-2bd8-4ab9-8af7-3f2db7078aac))
+  (fp_line (start 3.2 -6.1) (end 3.2 -9.4)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 7b7b0a39-4c5a-4b75-b108-79e2ffeb37c7))
+  (fp_arc (start -3.2 -9.4) (mid -2.789949 -10.389949) (end -1.8 -10.8)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp e7929458-8a46-427f-993b-013f276b81fb))
+  (fp_arc (start 1.8 -10.8) (mid 2.789949 -10.389949) (end 3.2 -9.4)
+    (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp c348a482-59e1-4a04-9d23-870f8d01839e))
+  (fp_rect (start -3.7 -11.2) (end 3.8 -3.8)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (tstamp 2d911663-0d4a-4001-a82d-07da47674458))
+  (pad "1" thru_hole circle (at -2.5 -5) (size 2.34 2.34) (drill 1.3) (layers "*.Cu" "*.Mask") (tstamp fb029c22-7d39-4981-a13e-e10ef0fdc1f4))
+  (pad "2" thru_hole circle (at 0 -10) (size 2.34 2.34) (drill 1.3) (layers "*.Cu" "*.Mask") (tstamp ca450172-9f54-40e9-954d-00e6c5717c60))
+  (pad "3" thru_hole circle (at 2.5 -5) (size 2.34 2.34) (drill 1.3) (layers "*.Cu" "*.Mask") (tstamp 82392998-63b2-4a30-9059-0e5c8775f59f))
+  (group "" (id adfbfe80-f647-4af0-a870-88685828effc)
+    (members
+      05551453-3a94-4924-93a1-3af33c189f3e
+      18be6088-43af-4245-8065-87a70c8d22d7
+      48fe5938-a0a4-4112-be3b-f306af368494
+      7b7b0a39-4c5a-4b75-b108-79e2ffeb37c7
+      b235b9b0-2bd8-4ab9-8af7-3f2db7078aac
+      c348a482-59e1-4a04-9d23-870f8d01839e
+      e7929458-8a46-427f-993b-013f276b81fb
+    )
+  )
+  (model "${KIPRJMOD}/Custom.models/Pot - RES_VAR1.STEP"
+    (offset (xyz 0 7.5 5.5))
+    (scale (xyz 1 1 1))
+    (rotate (xyz -90 0 180))
+  )
+)
