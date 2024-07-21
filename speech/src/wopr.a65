@@ -1,0 +1,147 @@
+;
+;  WOPR.A65 - A small demo that initialises the SP0256 speech processor
+;             and then asks THE question.
+;
+; **** KIM-1 standard addresses ****
+;
+TEMP		= $FC
+;
+; **** 6532 RIOT ****
+;
+PAD		= $1700			; 003 A data register
+PADD		= $1701			; 003 A data direction reg
+PBD		= $1702			; 003 B data register
+PBDD		= $1703			; 003 B data direction reg
+;
+;
+		* = $0200
+
+START:		JSR SPINIT		; Initialise Speech Processor
+;
+		LDX #0			; Initialise pointer
+LOOP:		LDA SHALL,X		; Load allophone
+		CMP #EOS		; Are we done?
+		BEQ DONE		; Yes, so break from loop
+		JSR SAY			; Say the allophone
+		INX			; Increase pointer
+		JMP LOOP		; And loop...
+;
+DONE:		JSR SPINIT		; Reset Speech Processor
+		BRK
+;
+SHALL:		.DB SH,AA,LL,PA3
+		.DB WW,IY,PA3
+		.DB PP,LL,EH,EY,PA2,EY,PA3
+		.DB GG2,IY,MM,PA5
+		.DB EOS			; End of Speech
+;
+;
+; **** SP0256 ROUTINES ****
+;
+; These routines expects the SP0256-AL2 Speech Processor to be
+; connected to the 6532 RIOT as following:
+;
+;	PB0-5 --->  A1-A6
+;	PB6  ---->  /ALD
+;	PB7  ---->  /RESET + /SBY_RST
+;	PA6  <----  SBY
+;	PA7  <----  /LRQ
+;
+BUSY	= %01000000	; SBY
+LOAD 	= %10000000	; /LRQ
+STROBE	= %01000000	; /ALD
+RESET	= %10000000	; /RESET
+;
+; SP0256-AL2 ALLOPHONES
+;
+PA1 	= @000		; PAUSE    (10ms)
+PA2 	= @001		; PAUSE    (30ms)
+PA3 	= @002		; PAUSE    (50ms)
+PA4 	= @003		; PAUSE    (100ms)
+PA5 	= @004		; PAUSE    (200ms)
+OY  	= @005		; Boy      (420ms)
+AY  	= @006		; Sky      (260ms)
+EH  	= @007		; End      (70ms)
+KK3 	= @010		; Comb     (120ms)
+PP  	= @011		; Pow      (210ms)
+JH  	= @012		; Dodge    (140ms)
+NN1 	= @013		; Thin     (140ms)
+IH  	= @014		; Sit      (70ms)
+TT2 	= @015		; To       (140ms)
+RR1 	= @016		; Rural    (170ms)
+AX  	= @017		; Succeed  (70ms)
+MM  	= @020		; Milk     (180ms)
+TT1 	= @021		; Part     (100ms)
+DH1 	= @022		; They     (230ms)
+IY  	= @023		; See      (250ms)
+EY  	= @024		; Beige    (280Ms)
+DD1 	= @025		; Could    (70ms)
+UW1 	= @026		; To       (100ms)
+AO  	= @027		; Aught    (100ms)
+AA  	= @030		; Hot      (100ms)
+YY2 	= @031		; Yes      (180ms)
+AE  	= @032		; Hat      (120ms)
+HH1 	= @033		; He       (130ms)
+BB1 	= @034		; Business (80ms)
+TH  	= @035		; Thin     (180ms)
+UH  	= @036		; Book     (100ms)
+UW2 	= @037		; Food     (260ms)
+AW	= @040		; Out      (370ms)
+DD2	= @041		; Do       (160ms)
+GG3	= @042		; Wig      (140ms)
+VV	= @043		; Vest     (190ms)
+GG1	= @044		; Got      (80ms)
+SH	= @045		; Ship     (160ms)
+ZH	= @046		; Azure    (190ms)
+RR2	= @047		; Brain    (120ms)
+FF	= @050		; Food     (150ms)
+KK2	= @051		; Sky      (190ms)
+KK1	= @052		; Can't    (160ms)
+ZZ	= @053		; Zoo      (210ms)
+NG	= @054		; Anchor   (220ms)
+LL	= @055		; Lake     (110ms)
+WW	= @056		; Wool     (180ms)
+XR	= @057		; Repair   (360ms)
+WH	= @060		; Whig     (200ms)
+YY1	= @061		; Yes      (130ms)
+CH	= @062		; Church   (190ms)
+ER1	= @063		; Fir      (160ms)
+ER2	= @064		; Fir      (300ms)
+OW	= @065		; Beau     (240ms)
+DH2	= @066		; They     (240ms)
+SS	= @067		; Vest     (90ms)
+NN2	= @070		; No       (190ms)
+HH2	= @071		; Hoe      (180ms)
+OR	= @072		; Store    (330ms)
+AR	= @073		; Alarm    (290ms)
+YR	= @074		; Clear    (350ms)
+GG2	= @075		; Guest    (40ms)
+EL	= @076		; Saddle   (190ms)
+BB2	= @077		; Business (50ms)
+;
+EOS	= @100		; END OF SPEECH
+;
+SPINIT:		LDA #0			; PA0-7 to be input
+		STA PADD		; Set Port A data direction
+		LDA #$FF		; PB0-7 to be output
+		STA PBDD		; Set Port B data direction
+		LDA #(RESET|STROBE)	; Raise /RESET & /ALD lines
+		STA PBD
+		AND #0			; Strobe /RESET
+		STA PBD
+		LDA #(RESET|STROBE)	; Raise /RESET & /ALD lines
+		STA PBD
+		RTS
+;
+SAY	:	STA TEMP		; Save allophone address
+		LDA #(BUSY)		; Read status of /BUSY line
+:		BIT PAD
+		BEQ :-			; Try again if HIGH
+		LDA TEMP		; Retrieve allophone address
+		ORA #(RESET|STROBE)	; Set /RESET & /ALD bits
+		STA PBD			; and write to Speech Processor
+		AND #(~STROBE)		; Strobe
+		STA PBD
+		ORA #STROBE
+		STA PBD
+		RTS			; And done!
