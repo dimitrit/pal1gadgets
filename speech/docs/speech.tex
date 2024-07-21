@@ -1,0 +1,142 @@
+\chapter{Speech Synthesizer}
+\label{ch:speech}
+
+\asection{Introduction}
+
+The PAL-1 Speech Synthesizer gadget enables the PAL-1 system to synthesize English speech. The gadget uses a system where words are formed from allophones, the basic 'building block' sounds of human speech. The systems signals when allophones have been enunciated, enabling complete words and sentences to be spoken.
+
+The Speech Synthesizer is based on the General Instrument SP0256 NARRATOR\texttrademark{} Speech Processor \acrshort{ic}. Specifically, the PAL-1 Speech Syntesizer uses the SP0256-AL2 chip, which   and is integrated with the PAL-1 RIOT adapter using an 8-bit parallel bus. Refer to the datasheet for technical details of the SP0256.\cite{gi:SP0256}
+
+\asection{Introduction to allophones}
+
+There are two fundamentally different approaches to speech processing. In the first approach, digitally recorded speech is stored in some medium, for example ROM. The second approach uses phonemes\footnote{A phoneme is a speech sound.} of English to construct words and sentences. The key advantage of the first approach is excellent speech reproduction and fidelity, at the cost of the necessarily limited vocabulary that can be stored in ROM. The advantage of the second approach is an unlimited, run-time definable vocabulary. However, in this approach, speech fidelity is less good than can be achieved with the pre-programmed method. Nevertheless, speech fidelity of this approach is more than acceptable in all but the most critical applications.
+
+While some models of the SP0256 chip have a preprogrammed vocabulary, the SP0256-AL2 chip used in the  PAL-1 Speech Synthesizer gadget takes the latter approach, providing unlimited possibilities to software developers. This chip can generate 59 allophones and five pauses (silences) of various lengths, as shown in table \ref{tab:sp0256aat} on page \pageref{tab:sp0256aat}.
+
+\subsection*{On language and speech}
+
+In order to successfully use a set of allophone sounds to synthesize words, there are a few preliminary points which should be made about speech and language. First, there is no one-to-one correspondence between written letters and speech sounds; second, speech sounds are not discrete units such as beads on a string; and last, speech sounds are acoustically different, dependent upon position within a word.
+
+Specifically, each sound in a language may be represented by more than one letter and, conversely, each letter may represent more than one sound --- for example, compare m\textbf{ea}t and f\textbf{ee}t, or v\textbf{ei}n and d\textbf{ei}sm. Because of these spelling irregularities, it is necessary to think in terms of \textit{sounds}, not letters, when dealing with speech allophones.
+
+Furthermore, speech is not a string of discrete sounds called by their letter names. Rather, speech is a continuously varying signal which cannot easily be broken into distinct sound-size units. For example, if an attempt is made to extract the \textbf{t} sound from the word \textbf{the} by taking successively larger chunks of the acoustic signal from the beginning of the word, either a non-speech noise or the syllable \textbf{th} is heard. In other words, there is no point at which the \textbf{t} sound can be heard in isolation.
+
+Finally, and most importantly when using allophones, is that the acoustic signal of a speech sound may differ depending upon word positions. For example, the initial \textbf{p} in \textbf{pop} will be acoustically different from the \textbf{p} in \textbf{spy}, and may be different from the final \textbf{p} in \textbf{pop}. Our ears perceive the same acoustic signal differently depending upon which sounds precede or follow it. The word \textbf{cot} can be made to sound like \textbf{cod} by lengthening the duration of the \textbf{o} and, conversely, the word \textbf{cod} can be made to sound like \textbf{cot} by shortening the duration of the \textbf{o}.
+
+Phoneme is the name given to a group of similar sounds in a language, and each language has a set which is slightly different from that of other languages. Recall that a phoneme is acoustically different depending upon word position. Each of these positional variants is an allophone of the same phoneme. An allophone, therefore, is the manifestation of a phoneme in the speech signal. It is for this reason that the inventory of English speech sounds is called an allophone set.
+
+\begin{table}[h!]
+
+	\centering
+	\sffamily %\footnotesize
+	\renewcommand{\arraystretch}{1.25}
+	\begin{tabular}{|c|l|}
+		\hline
+		\rowcolor{gray!20}
+		\multicolumn{2}{|l|}{\textbf{Silence}} \\
+		\hline
+		PA1 (10ms) & before BB, DD, GG and JH \\
+		PA2 (30ms) & before BB, DD, GG and JH \\
+		PA3 (50ms) & before PP, TT, KK and CH, and between words \\
+		PA4 (100ms) & between clauses and sentences \\
+		PA5 (200ms) & between clauses and sentences \\
+		\hline
+		\rowcolor{gray!20}
+		\multicolumn{2}{|l|}{\textbf{Short Vowels}\textsuperscript{*}} \\
+		\hline
+		/IH/ & s\textbf{i}tt\textbf{i}ng, strand\textbf{e}d \\
+		/EH/ & \textbf{e}xt\textbf{e}nt, g\textbf{e}ntlem\textbf{e}n \\
+		/AE/ & extr\textbf{a}ct, \textbf{a}cting \\
+		/UH/ & c\textbf{oo}kie, f\textbf{u}ll \\
+		/AO/ & t\textbf{a}lking, s\textbf{o}ng \\
+		/AX/ & l\textbf{a}pel, instr\textbf{u}ct \\
+		/AA/ & p\textbf{o}ttery, c\textbf{o}tton \\
+		\hline
+		\hline
+		\rowcolor{gray!20}
+		\multicolumn{2}{|l|}{\textbf{Long Vowels}} \\
+		\hline
+
+	\end{tabular}
+	\caption{Guidelines for using the allophones}
+	\label{tab:sp0256guidelines}
+\end{table}
+
+
+
+
+\begin{table}[h!]
+
+	\centering
+	\sffamily  \footnotesize
+	\renewcommand{\arraystretch}{1.25}
+	\begin{adjustbox}{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+		\rowcolor{gray!20}
+ &  &  & \tiny \textbf{SAMPLE} &  & &  & & \tiny \textbf{SAMPLE} & \\[-4pt]
+		\rowcolor{gray!20}
+ \multirow{-2}{*}{\tiny \textbf{DECIMAL}} &\multirow{-2}{*}{\tiny \textbf{OCTAL}} &  \multirow{-2}{*}{\tiny \textbf{ALLOPHONE}} & \tiny \textbf{WORD} & \multirow{-2}{*}{\tiny \textbf{DURATION}} & \multirow{-2}{*}{\tiny \textbf{DECIMAL}} &\multirow{-2}{*}{\tiny \textbf{OCTAL}} & \multirow{-2}{*}{\tiny \textbf{ALLOPHONE}} & \tiny \textbf{WORD} & \multirow{-2}{*}{\tiny \textbf{DURATION}}  \\
+\hline
+0 & 000 & PA1 & PAUSE & 10ms & 32 & 040 & /AW/ & Out & 370ms \\
+1 & 001 & PA2 & PAUSE & 30ms & 33 & 041 & /DD2/ & Do & 160ms \\
+2 & 002 & PA3 & PAUSE & 50ms & 34 & 042 & /GG3/ & Wig & 140ms \\
+3 & 003 & PA4 & PAUSE & 100ms & 35 & 043 & /VV/ & Vest & 190ms \\
+4 & 004 & PA5 & PAUSE & 200ms & 36 & 044 & /GG1/ & Got & 80ms \\
+5 & 005 & /OY/ & Boy & 420ms & 37 & 045 & /SH/ & Ship & 160ms \\
+6 & 006 & /AY/ & Sky & 260ms & 38 & 046 & /ZH/ & Azure & 190ms \\
+7 & 007 & /EH/ & End & 70ms & 39 & 047 & /RR2/ & Brain & 120ms \\
+8 & 010 & /KK3/ & Comb & 120ms & 40 & 050 & /FF/ & Food & 150ms \\
+9 & 011 & /PP/ & Pow & 210ms & 41 & 051 & /KK2/ & Sky & 190ms \\
+10 & 012 & /JH/ & Dodge & 140ms & 42 & 052 & /KK1/ & Can't & 160ms \\
+11 & 013 & /NN1/ & Thin & 140ms & 43 & 053 & /ZZ/ & Zoo & 210ms \\
+12 & 014 & /IH/ & Sit & 70ms & 44 & 054 & /NG/ & Anchor & 220ms \\
+13 & 015 & /TT2/ & To & 140ms & 45 & 055 & /LL/ & Lake & 110ms \\
+14 & 016 & /RR1/ & Rural & 170ms & 46 & 056 & /WW/ & Wool & 180ms \\
+15 & 017 & /AX/ & Succeed & 70ms & 47 & 057 & /XR/ & Repair & 360ms \\
+16 & 020 & /MM/ & Milk & 180ms & 48 & 060 & /WH/ & Whig & 200ms \\
+17 & 021 & /TT1/ & Part & 100ms & 49 & 061 & /YY1/ & Yes & 130ms \\
+18 & 022 & /DH1/ & They & 230ms & 50 & 062 & /CH/ & Church & 190ms \\
+19 & 023 & /IY/ & See & 250ms & 51 & 063 & /ER1/ & Fir & 160ms \\
+20 & 024 & /EY/ & Beige & 280Ms & 52 & 064 & /ER2/ & Fir & 300ms \\
+21 & 025 & /DD1/ & Could & 70ms & 53 & 065 & /OW/ & Beau & 240ms \\
+22 & 026 & /UW1/ & To & 100ms & 54 & 066 & /DH2/ & They & 240ms \\
+23 & 027 & /AO/ & Aught & 100ms & 55 & 067 & /SS/ & Vest & 90ms \\
+24 & 030 & /AA/ & Hot & 100ms & 56 & 070 & /NN2/ & No & 190ms \\
+25 & 031 & /YY2/ & Yes & 180ms & 57 & 071 & /HH2/ & Hoe & 180ms \\
+26 & 032 & /AE/ & Hat & 120ms & 58 & 072 & /OR/ & Store & 330ms \\
+27 & 033 & /HH1/ & He & 130ms & 59 & 073 & /AR/ & Alarm & 290ms \\
+28 & 034 & /BB1/ & Business & 80ms & 60 & 074 & /YR/ & Clear & 350ms \\
+29 & 035 & /TH/ & Thin & 180ms & 61 & 075 & /GG2/ & Guest & 40ms \\
+30 & 036 & /UH/ & Book & 100ms & 62 & 076 & /EL/ & Saddle & 190ms \\
+31 & 037 & /UW2/ & Food & 260ms & 63 & 077 & /BB2/ & Business & 50ms \\
+\hline	\end{tabular}
+\end{adjustbox}
+	\caption{Allophone address table}
+	\label{tab:sp0256aat}
+\end{table}
+
+
+\asection{Speech Synthesizer initialisation}
+
+The Speech gadget interfaces with the PAL-1 `\textit{2\textsuperscript{nd} RIOT}' 6532 IC as shown in table \ref{tab:speechif}.
+
+\begin{table}[h!]
+	\centering
+	\sffamily
+	\renewcommand{\arraystretch}{1.25}
+	\begin{tabular}{|c|c|p{10cm}|@{}}
+		\rowcolor{gray!20}
+		\hline
+		\textbf{6532} & \textbf{SP0256} & \textbf{Description} \\
+		\hline
+		PA0 & /ALD & ADDRESS LOAD. A negative pulse loads the 8 address bits into the input port. The leading edge of this pulse causes LRQ to go high. \\
+		PA6 & SBY & STANDBY. A logic 1 output indicates that the Speech Processor is inactive (i.e. not talking). When the Speech Processor is reactivated by an address being loaded, SBY will go to a logic 0. \\
+		PA7 & /LRQ & LOAD REQUEST. LRQ is a logic 1 output whenever the input buffer is full. When LRQ goes to a logic 0, the input port may be loaded by placing the 8 address bits on A1-A8 and pulsing the ALD input. \\
+		\hdashline
+		PB0-PB7 & A1-A8 & Allophone address \\
+		\hline
+	\end{tabular}
+	\caption{PAL-1 Speech gadget 6532 pin connections}
+	\label{tab:speechif}
+\end{table}
