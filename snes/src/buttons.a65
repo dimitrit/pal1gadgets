@@ -1,0 +1,119 @@
+;
+; BUTTONS.A65 - A small demo that reads the SNES controller button
+;		states and displays them on the 7-segment LED display
+;
+; **** Page 0 variables ****
+;
+buttonl		= $c0
+buttonh		= $c1
+temp		= $fc
+;
+; **** KIM-1 monitor addresses ****
+;
+convd		= $1f48			; convert and display hex
+;
+; **** 6532 RIOT ****
+;
+pad		= $1700			; 003 A data register
+padd		= $1701			; 003 A data direction reg
+sadd		= $1741			; 002 A data direction reg
+;
+		* = $0200		; program origin at $200
+;
+		jsr snesinit		; initialise snes controller
+		lda #$7f		; initialise display
+		sta sadd
+;
+rdctrl:		jsr snesrd		; read controller
+;
+		lda #0			; clear display buffer
+		ldy #6
+clrnxt:		sta buffer-1,y
+		dey
+		bne clrnxt		; clear all 6 positions
+;
+chkbtn:		ror buttonh		; shift buttons along by one
+		ror buttonl		; and into carry
+		bcc chkbtn0		; skip if button is clear
+		lda pattern,y		; get buffer offset for btn
+		tax
+		lda pattern+1,y		; get pattern for button
+		ora buffer,x		; & add to buffer at position
+		sta buffer,x
+chkbtn0:	iny			; advance ptr to next pattern
+		iny
+		cpy #(2*12)		; all 12 buttons done?
+		bne chkbtn		; no, proces next
+;
+		ldy #0			; display buffer contents
+		ldx #9
+patlp:		lda buffer,y		; get pattern
+		sty temp		; save pointer
+		jsr convd+6		; display (skipping lookup)
+		iny			; next pattern
+		cpy #6			; all digits done?
+		bne patlp		; no, process next
+;
+		jmp rdctrl		; and again
+;
+; Patterns to display buttons on 7-segment display
+; Byte #1 is offset into buffer, byte #2 is pattern
+;
+pattern:	.byte 4, 64+16+8+4	; B
+		.byte 4, 64+32+2+1	; Y
+		.byte 3, 16		; Select
+		.byte 3, 4		; Start
+		.byte 1, 32+2+1		; ^
+		.byte 1, 16+8+4		; V
+		.byte 0, 64+16+8	; <
+		.byte 2, 64+8+4		; >
+		.byte 5, 64+16+8+4	; A
+		.byte 5, 64+32+2+1	; X
+		.byte 3, 32		; Left
+		.byte 3, 2		; Right
+;
+buffer		.fill 6			; display buffer
+;
+; **** SNES CONTROLLER ROUTINES ****
+;
+; These routines expect the SNES Controller to be connected to the
+; 6532 RIOT as following:
+;
+;	PA0 ---> CLOCK
+;	PA1 ---> LATCH
+;	PA7 <--- DATA
+;
+data 		= %10000000		; PA7
+latch		= %00000010		; PA1
+clock		= %00000001		; PA0
+;
+snesinit:	lda #(latch|clock)	; set RIOT data dirs
+		sta padd
+		lda #0			; lower all pins
+		sta pad
+		lda #(clock)		; raise clock
+		sta pad
+		rts
+;
+snesrd:		lda #0			; clear button state
+		sta buttonl
+		sta buttonh
+		ldy #$10		; initialise counter
+		lda #(latch|clock)	; raise latch & clock
+		sta pad
+		and #(~latch)		; lower latch
+		sta pad
+snesrdlp:	lda #0			; lower all pins
+		sta pad
+		lda pad			; read data
+		eor #(data)		; toggle data bit
+		asl			; and shift into carry
+		ror buttonh		; then shift into button state
+		ror buttonl
+		lda #clock		; raise clock
+		sta pad
+		dey			; have we read all bits
+		bne snesrdlp		; no, so read next one
+		rts			; all done!
+;
+		.end
