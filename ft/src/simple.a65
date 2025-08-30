@@ -1,0 +1,145 @@
+;
+; SIMPLE.A65 - A small demo that initialises the fischertechnik Computing Interface;
+;
+; **** KIM-1 standard addresses ****
+;
+INH		= $f9
+POINTL		= $fa
+POINTH		= $fb
+TEMP		= $fc
+;
+SCANDS		= $1f1f
+irql		= $17fe
+irqh		= $17ff
+;
+; **** 6532 RIOT ****
+;
+PAD		= $1700			; 003 A data register
+PADD		= $1701			; 003 A data direction reg
+PBD		= $1702			; 003 B data register
+PBDD		= $1703			; 003 B data direction reg
+;
+		* = $0200
+
+		LDA #0
+		STA INH
+		STA POINTL
+		STA POINTH
+		JSR FT_INIT
+AGAIN:		LDX #4
+		LDA #3
+		STA $C1
+LOOP:		LDA $C1
+		STA MOTOR_STATE
+		JSR SHOUT
+		ASL $C1
+		ASL $C1
+		TXA
+		PHA
+		JSR DELAY
+		PLA
+		TAX
+		DEX
+		BNE LOOP
+		JSR SHIN
+		LDA BUTTON_STATE
+		STA INH
+		JMP AGAIN
+		BRK
+
+DELAY:
+		LDY #$A0
+DLY_LOOP:	TYA
+		PHA
+		JSR SCANDS
+		PLA
+		TAY
+		DEY
+		BNE DLY_LOOP
+		RTS
+;
+;
+; **** fischertechnik Computing Interface routines  ****
+;
+; These routines expects the ft interface to be connected to the
+; 6532 RIOT as following:
+;
+;     LOAD_OUT  [8] --- PB0
+;      LOAD_IN  [7] --- PB1
+;     DATA_OUT [10] --- PB2
+;          CLK  [9] --- PB3
+;    TRIGGER_X [11] --- PB4
+;    TRIGGER_Y [12] --- PB5
+;     COUNT_IN  [4] --- PB6
+;  C64_DATA_IN [17] --- PB7
+;          GND [20] --- GND
+;       POTI_X [13] --- RC_C [15]
+;       POTI_Y [14] --- RC_Y [16]
+;
+LOAD_OUT	= %00000001
+LOAD_IN		= %00000010
+DATA_OUT	= %00000100
+CLK		= %00001000
+TRIGGER_X	= %00010000
+TRIGGER_Y	= %00100000
+COUNT_IN	= %01000000
+DATA_IN		= %10000000
+;
+SIG_DEFAULT	= CLK|LOAD_OUT|TRIGGER_X|TRIGGER_Y ; Default high signals
+;
+MOTOR_STATE	= $C0			; state of motors
+BUTTON_STATE	= $C1			; state of inputs
+;
+FT_INIT:	LDA #(CLK|LOAD_OUT|DATA_OUT|TRIGGER_X|TRIGGER_Y|LOAD_IN) ; Set as output
+		STA PBDD		; Store Port B data directions
+		LDA #SIG_DEFAULT	; Set LOAD_OUT, COUNT_IN and CLOCK high
+		STA PBD			; Set Port B data register
+		LDA #0
+		STA MOTOR_STATE		; All motors off
+;
+; Digital output
+;
+SHOUT:		SEI			; Disable interrupts
+		LDA MOTOR_STATE		; Load motor state
+		STA TEMP		; And store in TEMP
+		LDY #8			; Initialise counter
+		LDA #(SIG_DEFAULT~LOAD_OUT)	; Lower LOAD_OUT
+SHO1:		AND #(~CLK)		; Lower CLOCK
+		STA PBD			; And apply
+		LDA TEMP		; Get next motor setting
+		AND #1			; Keep only LSB
+		ASL
+		ASL			; Shift to DATA_OUT
+		ORA #(TRIGGER_X|TRIGGER_Y)
+		STA PBD			; And apply
+		ORA #(CLK)		; Now raise CLOCK
+		STA PBD			; And apply
+		ROR TEMP		; Shift temp motor state
+		DEY			; Decrease our counter
+		BNE SHO1		; Not done yet
+		LDA #(SIG_DEFAULT)	; Set LOAD_OUT and CLOCK high
+		STA PBD			; And apply
+		CLI			; Re-enable interrupts
+		RTS			; All done!
+;
+; Digital Input
+;
+SHIN:		SEI			; Disable interrupts
+		LDA #(SIG_DEFAULT|LOAD_IN)~CLK ; Raise LOAD_IN and lower CLOCK
+		STA PBD			; And apply
+		LDY #8			; Initialise counter
+		ORA #(CLK)		; Now raise CLOCK
+		STA PBD			; And apply
+SHI1:		AND #~(CLK|LOAD_IN)	; Lower CLOCK and LOAD_IN
+		STA PBD			; And apply
+		LDA PBD			; Now read port
+		;EOR #$FF		; Invert button states
+		AND #DATA_IN		; Save only input data bit
+		ROL			; Move data into carry
+		ROL BUTTON_STATE	; Then carry into BUTTON_STATE
+		LDA #(SIG_DEFAULT)	; Raise CLOCK and lower LOAD_IN
+		STA PBD			; And apply
+		DEY			; Decrease counter
+		BNE SHI1		; Not done yet
+		CLI			; Re-enable interrupts
+		RTS			; All done!
