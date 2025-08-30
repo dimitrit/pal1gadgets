@@ -1,6 +1,6 @@
 # PAL1-ft: An adapter for the fischertechnik Computing Interface
 
-The fischertechnik provided a range of adapters to allow the fischertechnik Computing Interface to be connected to different platforms, including Amstrad, Apple, Atari and Commodore.[^1] This adapter implements the same
+The fischertechnik provided a range of adapters to allow the fischertechnik Computing Interface to be connected to different platforms, including Amstrad, Apple, Atari and Commodore.[^1]
 
 ![PAL-1 ftPAL gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/ft/docs/figures/ftPAL.png?raw=true)
 
