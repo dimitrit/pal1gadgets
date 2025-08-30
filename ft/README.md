@@ -1,10 +1,10 @@
 # PAL1-ft: An adapter for the fischertechnik Computing Interface
 
-The fischertechnik Computing Experimental kit supported a range of adapters to allow the fischertechnik Computing Interface to be connected to different platforms, including Amstrad, Apple, Atari and Commodore.[^1]
+In the late 1980s and early 1990s fischertechnik released a number of construction sets that could be controlled by a computer. The connection between motors, sensors and the computer was by means of a dedicated Computing Interface.[^1] The fischertechnik Computing Interface supported a range of platforms, including Amstrad, Apple, Atari and Commodore.
 
 ![PAL-1 ftPAL gadget render](https://github.com/dimitrit/pal1gadgets/blob/main/ft/docs/figures/ftPAL.png?raw=true)
 
-PAL1-ft is a simple adapter that allows the fischertechnik Computing Interface to be connected to the PAL-1 RIOT Expansion Module.[^2]
+While some versions of the Computing Interface had dedicated connectors for specific platforms, the company also released 'generic' interfaces. These 'generic' Computing Interfaces required dedicated adapters between the interface and the respective computer systems. PAL1-ft is a simple adapter that allows the fischertechnik Computing Interface to be connected to the PAL-1 RIOT Expansion Module.[^2]
 
 The adapter implements the same logical connections as the original fischertechnik VIC 20/CBM adapter:
 
