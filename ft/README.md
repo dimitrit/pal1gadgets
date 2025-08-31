@@ -6,7 +6,7 @@ In the late 1980s and early 1990s fischertechnik released a number of constructi
 
 While some versions of the Computing Interface had dedicated connectors for specific platforms, the company also released 'generic' interfaces. These 'generic' Computing Interfaces required adapters between the interface connector and the respective computer systems. PAL1-ft is a simple adapter that allows the fischertechnik Computing Interface to be connected to the PAL-1 RIOT Expansion Module.[^2]
 
-The adapter implements the same logical connections as the original fischertechnik VIC 20/CBM adapter:
+The adapter implements the same logical connections as the original fischertechnik VIC 20/CBM adapter:[^3]
 
 | PAL1 RIOT | ft Interface | Description |
 | :-------: | :----------: | :---------- |
@@ -19,5 +19,6 @@ The adapter implements the same logical connections as the original fischertechn
 | PB6       | COUNT_IN     | Analog data input |
 | PB7       | C64_DATA_IN  | Digital data input stream |
 
-[^1]: fischertechnik, _‘Computing Interface’, _<https://docs.fischertechnikclub.nl/computing/39484.pdf> [accessed 30 August 2025].
-[^2]: Liu Ganning, _‘RIOT EXPANSION’_, 2021 <http://pal.aibs.ws/assets/RIOT_expansion_manual.pdf> [accessed 26 January 2024].
+[^1]: fischertechnik, _‘Computing Interface’_, N.D., <https://docs.fischertechnikclub.nl/computing/39484.pdf> [accessed 30 August 2025].
+[^2]: Liu Ganning, _‘RIOT EXPANSION’_, 2021, <http://pal.aibs.ws/assets/RIOT_expansion_manual.pdf> [accessed 26 January 2024].
+[^3]: R Trapp, _‘ft66843 Schematic’_, 2017, <https://ftcommunity.de/knowhow/computing/computing_interfaces/ft66843_schematic.pdf> [accessed 30 August 2025].
