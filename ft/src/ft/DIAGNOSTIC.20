@@ -1,0 +1,110 @@
+    1 print chr$(147)
+    5 print"loading driver"
+   20 rem copyright (c) artur fischer forschung 1984
+  100 data 828,169,0,240,38,169,3,208,10,1665
+  110 data 169,12,208,6,169,48,208,2,2487
+  120 data 169,192,120,133,255,32,253,206,3847
+  130 data 165,254,5,255,133,254,32,158,5103
+  140 data 215,138,37,255,133,255,165,254,6555
+  150 data 69,255,133,254,168,169,63,141,7807
+  160 data 18,145,162,8,169,48,6,254,8617
+  170 data 144,2,9,4,141,16,145,9,9087
+  180 data 8,141,16,145,202,208,237,169,10213
+  190 data 57,141,16,145,132,254,88,96,11142
+  200 data 120,32,161,215,224,160,240,51,12345
+  210 data 224,144,240,47,134,255,169,50,13608
+  220 data 141,16,145,9,8,141,16,145,14229
+  230 data 162,8,10,44,16,145,16,2,14632
+  240 data 9,1,160,48,140,16,145,160,15311
+  250 data 56,140,16,145,202,208,235,37,16350
+  260 data 255,168,240,2,160,1,32,162,17370
+  270 data 211,88,96,169,32,141,27,145,18279
+  280 data 169,255,141,24,145,141,25,145,19324
+  290 data 142,16,145,162,56,142,16,145,20148
+  300 data 173,24,145,162,3,202,208,253,21318
+  310 data 56,237,24,145,208,242,56,169,22455
+  320 data 255,237,24,145,168,169,255,237,23945
+  330 data 25,145,32,145,211,88,96,0,24687
+  350 data 1,2,4,8,16,32,64,128,24942
+  360 data 160,144,255,170,85,140,3,25899
+  370 read init:m1=init
+  380 for m3=0 to 23: for m2=0 to 7
+  390 read m4: poke init+m3*8+m2,m4
+  400 m1=m1+m4:next
+  410 read m4: if m1<>m4 then print"datafehler in zeile";m3*10+100:end
+  420 next
+  430 read e1,e2,e3,e4,e5,e6,e7,e8
+  440 m1=m1+e1+e2+e3+e4+e5+e6+e7+e8
+  450 read m4: if m1<>m4 then print"datafehler in zeile 350":end
+  460 read ex,ey,off,ccw,cw,m2,m3
+  470 m1=m1+ex+ey+off+ccw+cw+m2+m3
+  480 read m4: if m1<>m4 then print"datafehler in zeile 360":end
+  485 poke 1,m2 :poke 2,m3
+  490 m1=init+4:m2=m1+4:m3=m2+4:m4=m3+4
+  500 sys init
+  650 rem copyright (c) artur fischer forschung 1984
+  900 print chr$(147)
+  910 print"fischertechnik"
+  920 print"computing"
+  930 print"diagnostic program"
+  950 print
+ 1000 dim sta(4),sta$(4):
+ 1010 input"using pot. x";x$
+ 1020 x=left$(x$,1)="y"
+ 1030 input"using pot. y";y$
+ 1040 y=left$(y$,1)="y"
+ 1050 for i=1 to 4
+ 1060 let sta(i)=off:sta$(i)="off"
+ 1070 next i
+ 1080 dim m(4)
+ 1090 let m(1)=m1:m(2)=m 2 :m(3)=m3:m(4)=m4
+ 1100 let m=1:rem act.motor
+ 1105 print chr$(147)
+ 1106 print"fischertechnik"
+ 1107 print"computing"
+ 1108 print"diagnostic"
+ 1110 print"c o m m a n d s"
+ 1120 print
+ 1130 print"c:all motors off"
+ 1140 print"o:act.motor off"
+ 1150 print"q:act.motor cw"
+ 1160 print"p:act.motor ccw"
+ 1170 print"x:exit"
+ 1180 print"1-4 :select motor"
+ 1190 print
+ 1200 print"   e1 e2 e3 e4   ex"
+ 1210 print:print
+ 1220 print"   e5 e6 e7 e8   ey"
+ 1230 print
+ 1240 let clear$="     {left}{left}{left}{left}{left}"
+ 1250 print"{home}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}"
+ 1260 print tab(2);clear$;usr(e1);
+ 1270 print tab(5);clear$;usr(e2);
+ 1280 print tab(8);clear$;usr(e3);
+ 1290 print tab(11);clear$;usr(e4);
+ 1300 if x then print tab(16);clear$;usr(ex);
+ 1310 print:print:print
+ 1320 print tab(2);clear$;usr(e5);
+ 1330 print tab(5);clear$;usr(e6);
+ 1340 print tab(8);clear$;usr(e7);
+ 1350 print tab(11);clear$;usr(e8);
+ 1360 if y then print tab(16);clear$;usr(ey);
+ 1400 get k$
+ 1410 if k$=""then 2000
+ 1500 if k$="c"then for i=1 to4:let sta(i)=off:sta$(i)="off":next i:goto2000
+ 1510 if k$="o"then let sta(m)=off:sta$(m)="off":goto 2000
+ 1520 if k$="q"then let sta(m)=ccw:sta$(m)="ccw":goto2000
+ 1530 if k$="p"then let sta(m)=cw:sta$(m)="cw ":goto2000
+ 1540 if k$="x"then print"{clr}":end
+ 1550 m=val(k$)
+ 1560 if m<1 or m>4 then let m=1
+ 2000 for i=1to4
+ 2010 sys m(i),sta(i)
+ 2015 if i=m then print chr$(18);
+ 2020 print"{home}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}";
+ 2030 print tab(5*i-3);"m";i;"{left}{left}{left}{left}";
+ 2040 print"{down}{down}";
+ 2050 print sta$(i);
+ 2060 print chr$(146);
+ 2070 next i
+ 2080 goto 1250

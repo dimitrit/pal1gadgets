@@ -1,0 +1,104 @@
+    1 print chr$(147)
+    5 print"grundprogramm wird geladen"
+   20 rem copyright (c) artur fischer forschung 1984
+  100 data 52736,169,0,240,38,169,3,208,10,53573
+  110 data 169,12,208,6,169,48,208,2,54395
+  120 data 169,192,120,133,255,32,253,174,55723
+  130 data 165,254,5,255,133,254,32,158,56979
+  140 data 183,138,37,255,133,255,165,254,58399
+  150 data 69,255,133,254,168,169,63,141,59651
+  160 data 3,221,162,8,169,48,6,254,60522
+  170 data 144,2,9,4,141,1,221,9,61053
+  180 data 8,141,1,221,202,208,237,169,62240
+  190 data 57,141,1,221,132,254,88,96,63230
+  200 data 120,32,161,183,224,162,240,51,64403
+  210 data 224,146,240,47,134,255,169,50,65668
+  220 data 141,1,221,9,8,141,1,221,66411
+  230 data 162,8,10,44,1,221,16,2,66875
+  240 data 9,1,160,48,140,1,221,160,67615
+  250 data 56,140,1,221,202,208,235,37,68715
+  260 data 255,168,240,2,160,1,32,162,69735
+  270 data 179,88,96,169,255,141,4,221,70888
+  280 data 141,5,221,169,185,141,14,221,71985
+  290 data 142,1,221,162,58,142,1,221,72933
+  300 data 173,4,221,162,3,202,208,253,74159
+  310 data 56,237,4,221,208,242,162,56,75345
+  320 data 142,1,221,56,169,255,237,4,76430
+  330 data 221,168,169,255,237,5,221,32,77738
+  340 data 145,179,76,137,206,0,0,0,78481
+  350 data 1,2,4,8,16,32,64,128,78736
+  360 data 162,146,255,170,85,85,80,206,79925
+  370 read init : m1=init
+  380 for m3=0 to 24 : for m2=0 to 7
+  390 read m4 : poke init+m3*8+m2,m4
+  400 m1=m1+m4 : next
+  410 read m4 : if m1<>m4 then print"datafehler in zeile";m3*10+100:end
+  420 next
+  430 read e1,e2,e3,e4,e5,e6,e7,e8
+  440 m1=m1+e1+e2+e3+e4+e5+e6+e7+e8
+  450 read m4 : if m1<>m4 then print"datafehler in zeile 350" : end
+  460 read ex,ey,aus,links,rechts,ein,m2,m3
+  470 m1=m1+ex+ey+aus+links+rechts+ein+m2+m3
+  480 read m4 : if m1<>m4 then print"datafehler in zeile 360" : end
+  485 poke785,m2 : poke786,m3
+  490 m1=init+4 : m2=m1+4 : m3=m2+4 : m4=m3+4
+  500 sys init
+  650 rem copyright (c) artur fischer forschung 1984
+  900 print chr$(147)
+  910 print"fischertechnik"
+  920 print"computing"
+  940 print"diagnose"
+  950 print
+ 1000 dim sta(4),sta$(4)
+ 1010 input "x-poti benutzt";x$
+ 1020 x=left$(x$,1)="j"
+ 1030 input"y-poti benutzt";y$
+ 1040 y=left$(y$,1)="j"
+ 1050 for i=1 to 4
+ 1060 let sta(i)=aus:sta$(i) = "aus"
+ 1070 next i
+ 1080 dim m (4)
+ 1090 let m(1)=m1:m(2)=m2:m(3)=m3:m(4)=m4
+ 1100 let m = 1
+ 1110 print"k o m m a n d o s "
+ 1120 print
+ 1130 print"c :alle motoren aus"
+ 1140 print"a :akt.motor aus"
+ 1150 print"l :akt.motor links"
+ 1160 print"r :akt.motor rechts"
+ 1170 print"x :programmende"
+ 1180 print"1-4 :motornr. waehlen"
+ 1190 print:print
+ 1200 print"  e1 e2 e3 e4 e5 e6 e7 e8    ex   ey"
+ 1210 print
+ 1220 let clear$="     {left}{left}{left}{left}{left}"
+ 1230 print "{home}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}"
+ 1240 print tab(2);clear$;usr(e1);
+ 1250 print tab(5);clear$;usr(e2);
+ 1260 print tab(8);clear$;usr(e3);
+ 1270 print tab(11);clear$;usr(e4);
+ 1280 print tab(14);clear$;usr(e5);
+ 1290 print tab(17);clear$;usr(e6);
+ 1300 print tab(20);clear$;usr(e7);
+ 1310 print tab(23);clear$;usr(e8);
+ 1320 if x then print tab(28);clear$;usr(ex);
+ 1330 if y then print tab(32);clear$;usr(ey);
+ 1340 get k$
+ 1350 if k$=""then 1430
+ 1360 if k$="c"then for i=1 to4:let sta(i)=aus:sta$(i)="aus":next i:goto 1430
+ 1370 if k$="a"then let sta(m)=aus:sta$(m)="aus":goto 1430
+ 1380 if k$="l"then let sta(m)=links:sta$(m)="li.":goto 1430
+ 1390 if k$="r"then let sta(m)=rechts:sta$(m)="re.":goto 1430
+ 1400 if k$="x"then print"{clr}":end
+ 1410 m=val(k$)
+ 1420 if m<1 or m>4 then let m=1
+ 1430 for i=1to4
+ 1440 sys m(i),sta(i)
+ 1450 print"{home}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}{down}"
+ 1460 if i=m then print"{rvon}";
+ 1470 print tab(5*i-3);"m";i;"{left}{left}{left}{left}";
+ 1480 print"{down}{down}";
+ 1490 print sta$(i);
+ 1500 print "{rvof}";
+ 1510 next i
+ 1520 goto 1230

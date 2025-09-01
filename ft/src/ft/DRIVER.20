@@ -1,0 +1,52 @@
+    1 print chr$(147)
+    5 print"loading driver"
+   10 rem interface programm for vic 20
+   20 rem copyright (c) artur fischer forschung 1984
+   30 rem commands of the driver
+   40 rem sys m1,off
+   50 rem sys m1,cw         sys m1,ccw
+   60 rem usr(e1)     usr(ex)     usr(ey)
+   70 rem m1 - m4 are motor select commands
+   80 rem e1 - e8 are digital inputs
+   90 rem ex and ey are analogue inputs
+  100 data 828,169,0,240,38,169,3,208,10,1665
+  110 data 169,12,208,6,169,48,208,2,2487
+  120 data 169,192,120,133,255,32,253,206,3847
+  130 data 165,254,5,255,133,254,32,158,5103
+  140 data 215,138,37,255,133,255,165,254,6555
+  150 data 69,255,133,254,168,169,63,141,7807
+  160 data 18,145,162,8,169,48,6,254,8617
+  170 data 144,2,9,4,141,16,145,9,9087
+  180 data 8,141,16,145,202,208,237,169,10213
+  190 data 57,141,16,145,132,254,88,96,11142
+  200 data 120,32,161,215,224,160,240,51,12345
+  210 data 224,144,240,47,134,255,169,50,13608
+  220 data 141,16,145,9,8,141,16,145,14229
+  230 data 162,8,10,44,16,145,16,2,14632
+  240 data 9,1,160,48,140,16,145,160,15311
+  250 data 56,140,16,145,202,208,235,37,16350
+  260 data 255,168,240,2,160,1,32,162,17370
+  270 data 211,88,96,169,32,141,27,145,18279
+  280 data 169,255,141,24,145,141,25,145,19324
+  290 data 142,16,145,162,56,142,16,145,20148
+  300 data 173,24,145,162,3,202,208,253,21318
+  310 data 56,237,24,145,208,242,56,169,22455
+  320 data 255,237,24,145,168,169,255,237,23945
+  330 data 25,145,32,145,211,88,96,0,24687
+  350 data 1,2,4,8,16,32,64,128,24942
+  360 data 160,144,255,170,85,140,3,25899
+  370 read init:m1=init
+  380 for m3=0 to 23: for m2=0 to 7
+  390 read m4: poke init+m3*8+m2,m4
+  400 m1=m1+m4:next
+  410 read m4: if m1<>m4 then print"datafehler in zeile";m3*10+100:end
+  420 next
+  430 read e1,e2,e3,e4,e5,e6,e7,e8
+  440 m1=m1+e1+e2+e3+e4+e5+e6+e7+e8
+  450 read m4: if m1<>m4 then print"datafehler in zeile 350":end
+  460 read ex,ey,off,ccw,cw,m2,m3
+  470 m1=m1+ex+ey+off+ccw+cw+m2+m3
+  480 read m4: if m1<>m4 then print"datafehler in zeile 360":end
+  485 poke 1,m2 :poke 2,m3
+  490 m1=init+4:m2=m1+4:m3=m2+4:m4=m3+4
+  500 sys init
