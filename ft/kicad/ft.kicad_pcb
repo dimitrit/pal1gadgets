@@ -405,7 +405,7 @@
     (property "ki_keywords" "connector")
     (path "/272a49e5-a228-4ad3-a615-faf67feb75fa")
     (attr through_hole)
-    (fp_text reference "J2" (at 6.215 -6.1 180) (layer "F.SilkS")
+    (fp_text reference "J2" (at 6.215 -6.1 180) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 43f9de82-e06e-4ecd-ae43-4d82364a7dc0)
     )
@@ -583,10 +583,10 @@
   (gr_text "Plastic Objects Limited 2025" (at 106.934 90.17) (layer "B.SilkS") (tstamp b0529ecd-ca4c-4f39-a237-ebfc5b9feb50)
     (effects (font (size 1 1) (thickness 0.15)) (justify left mirror))
   )
-  (gr_text "TOP" (at 100.418999 58.928) (layer "F.SilkS") (tstamp c7b4e83e-bec9-4570-aa34-b99a6cd56b69)
-    (effects (font (size 2.5 2.5) (thickness 0.25)) (justify left bottom))
+  (gr_text "TOP" (at 95.758 58.674) (layer "B.SilkS") (tstamp c7b4e83e-bec9-4570-aa34-b99a6cd56b69)
+    (effects (font (size 2 2) (thickness 0.15)) (justify bottom mirror))
   )
-  (gr_text "ftPAL" (at 98.044 90.424) (layer "F.SilkS") (tstamp d7b4a730-a65d-4568-a42d-e49446699306)
+  (gr_text "ftPAL" (at 98.044 58.928) (layer "F.SilkS") (tstamp d7b4a730-a65d-4568-a42d-e49446699306)
     (effects (font (size 2.5 2.5) (thickness 0.2)) (justify left bottom))
   )
 
@@ -650,9 +650,7 @@
       (pts
         (xy 109.982 53.848)
         (xy 109.982 92.456)
-        (xy 109.982 92.456)
         (xy 82.042 92.456)
-        (xy 82.042 53.848)
         (xy 82.042 53.848)
       )
     )
