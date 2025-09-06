@@ -54,7 +54,7 @@ UP	.DE $DD01 		;Userport data register
 DRR	.DE $DD03 		;Userport data direction
 TIL	.DE $DD04 		;Timer low register
 TIH	.DE $DD05 		;Timer high register
-TIC	.DE SDD0E 		;Timer control register
+TIC	.DE $DD0E 		;Timer control register
 	;**************************************
 	; Variables in the zero page
 	;**************************************
@@ -185,4 +185,3 @@ DELAY	DEX
 	SBC TIH			;High byte
 	JSR AYFAC		;Convert A/Y to floating
 	JMP END			;Return to BASIC
-	.EN
