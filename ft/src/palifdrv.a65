@@ -1,0 +1,171 @@
+	;**************************************
+	; PAL-1 Interface Driver Program
+	;**************************************
+	; This driver is based on the C64 driver
+	; (C) Artur Fischer Forschung, 1984
+	;**************************************
+	;
+	; These routines require the ft interface to be
+	; connected to the PAL-1 6532 RIOT as following:
+	;     LOAD_OUT  [8] --- PB0
+	;      LOAD_IN  [7] --- PB1
+	;     DATA_OUT [10] --- PB2
+	;          CLK  [9] --- PB3
+	;    TRIGGER_X [11] --- PB4
+	;    TRIGGER_Y [12] --- PB5
+	;     COUNT_IN  [4] --- PB6
+	;  C64_DATA_IN [17] --- PB7
+	;          GND [20] --- GND
+	;       POTI_X [13] --- RC_C [15]
+	;       POTI_Y [14] --- RC_Y [16]
+	;
+	;**************************************
+	; Interface control constants
+	;**************************************
+OFF	= %11111111
+CCW	= %10101010
+CW	= %01010101
+
+M1	= %00000011
+M2	= %00001100
+M3	= %00110000
+M4	= %11000000
+
+E1	= %00000001
+E2	= %00000010
+E3	= %00000100
+E4	= %00001000
+E5	= %00010000
+E6	= %00100000
+E7	= %01000000
+E8	= %10000000
+EX	= %10100000
+EY	= %10010000
+	;**************************************
+	; Input and output registers
+	;**************************************
+PBD	= $1702			; RIOT B data register
+PBDD	= $1703			; RIOT B data direction
+
+; TIL	= $DD04 		;Timer low register
+; TIH	= $DD05 		;Timer high register
+; TIC	= SDD0E 		;Timer control register
+	;**************************************
+	; Variables in the zero page
+	;**************************************
+AVAR	= $D0 		;output variable
+MASK	= $D1 		;mask variable
+	;**************************************
+	;Routines for output control
+	;Call in using the SYS command
+	;**************************************
+INIT 	SEI 			;Disable interrupt
+	LDA #$00 		;All motors off
+	BEQ STVAR		;BRANCH ALWAYS
+	;**************************************
+BOUT	SEI			;Disable interrupt
+	STA MASK		;Save bit mask
+	LDA AVAR		;Get previous output
+	ORA MASK		;Set both bits
+	STA AVAR		;Intermediate storage
+	TXA
+	AND MASK		;Mask motor
+	STA MASK		;Intermediate storage
+	LDA AVAR		;Get output variable
+	EOR MASK		;Set bit (10, 01, 00)
+STVAR	STA AVAR		;Save for output
+	TAY			;Copy in Y-reg.
+	;**************************************
+	; Routine for interface control
+	; Output control
+	; Output bit pattern in AVAR
+	; Uses A- and X-registers
+	;**************************************
+	LDA #$3F		;Set data direction
+	STA PBDD
+	LDX #$08		;Loop for 8 bits
+LOOP	LDA #$30		;static pattern userport
+	ASL AVAR 		;Test output bit
+	BCC DOUT		;DATA-OUT low
+	ORA #$04		;DATA-OUT high
+DOUT	STA PBD			;Output to userport
+	ORA #$08		;set CLOCK
+	STA PBD			;Output to userport
+	DEX			;Loop counter
+	BNE LOOP		;end of LOOP
+	LDA #$39		;Set LOAD-OUT
+	STA PBD			;Output to userport
+	STY AVAR		;Restore AVAR
+	CLI			;Enable interrupt
+	RTS			;Return to caller
+	;**************************************
+	; Routine for interface control
+	; Input control
+	; Result in Y register
+	;**************************************
+BINP	SEI			;Disable interrupt
+; 	JSR FACINT		;Convert arg. to integer
+; 	CPX #$A2		;Analog input?
+; 	BEQ POTS		;Go to POTS
+; 	CPX #$92		;Analog input?
+; 	BEQ POTS		;Go to POTS
+ 	STX MASK		;Save input mask
+; 	;**************************************
+; 	; Interface Control
+; 	; for digital input
+; 	; Uses X- and Y-registers
+; 	;**************************************
+	LDA #$32		;Set LOAD-IN
+	STA PBD			;Output to userport
+	ORA #$08		;Set CLOCK
+	STA PBD			;Output to userport
+	LDX #$08		;Loop counter for 8 bit
+LOOP2	ASL A			;Shift left A-reg.
+	BIT PBD			;Test DATA-IN
+	BPL MAKEIN		;DATA-IN is low
+	ORA #$01		;DATA-IN is high
+MAKEIN	LDY #$30		;Reset CLOCK
+	STY PBD			;Output to userport
+	LDY #$38		;Set CLOCK
+	STY PBD			;Output to userport
+	DEX			;Decrement loop counter
+	BNE LOOP2		;End of LOOP2
+	AND MASK		;Mask bit
+ 	TAY			;Save in Y-register
+ 	BEQ END			;Return 0
+ 	LDY #$01		;Return 1
+END	CLI			;Enable interrupt
+	RTS			;Return to caller
+; 	;**************************************
+; 	; Analog input
+; 	; If the argument is either $92 or $A2
+; 	; an analog input is invoked. Control
+; 	; jumps here.
+; 	; Uses A-, X- and Y-registers
+; 	;**************************************
+; POTS	LDA #$FF		;Set Count register to $FFFF
+; 	STA TIL
+; 	STA TIH
+; 	LDA #$B9		;Set timer control reg.
+; 	STA TIC
+; 	STX PBD			;Trigger One-shot
+; 	LDX #$3A		;Reset trigger
+; 	STX PBD			;Output to userport
+; TST	LDA TIL			;Test timer low register
+; 	LDX #$03		;Delay loop
+; DELAY	DEX
+; 	BNE DELAY
+; 	SEC			;Subtract timer low reg.
+; 	SBC TIL			;from previous value.
+; 	BNE TST			;Pulses still arriving?
+; 	LDX #$38		;Set CLOCK, reset LOAD-IN
+; 	STX PBD			;Output to userport
+; 	SEC 			;Calculate contents
+; 	LDA #$FF
+; 	SBC TIL 		;Low byte
+; 	TAY			;in Y register
+; 	LDA #$FF
+; 	SBC TIH			;High byte
+; 	JSR AYFAC		;Convert A/Y to floating
+; 	JMP END			;Return to caller
+;	.END
