@@ -1,14 +1,16 @@
 ;
+; SIMPLE.A65 - A simple demo that enables the motor connected to M1.
+;              The direction of the motor is reversed by pressing the
+;              button connected to E1.
 ;
+MTRDIR		EQU $C0
+PREVBTN		EQU $C1
 ;
-MTRDIR		= $C0
-PREVBTN		= $C1
-;
-		* = $200
+		ORG $200
 
 		LDA #0			; Initialise button state
-		STA PREVBTN		;   and motor direction
-		LDA #CW
+		STA PREVBTN
+		LDA #CW			; Motor direction Clockwise
 		STA MTRDIR
 		JSR INIT		; Initialise interface
 AGAIN		LDA #M1			; Use MOTOR1
@@ -26,4 +28,6 @@ AGAIN		LDA #M1			; Use MOTOR1
 CONT		STA PREVBTN		; Save button state
 		JMP AGAIN		; And loop
 
-		.INCLUDE PALIFDRV.A65	; Load driver
+		INCLUDE PALIFDRV.A65	; Load driver
+
+		END
