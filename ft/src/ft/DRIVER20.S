@@ -153,9 +153,9 @@ CVAR            JSR $AFAC		;Convert to floating
 		; jumps here.
 		; Uses A-, X- and Y-registers
 		;**************************************
-POTS            LDA #$20
-                STA ACR
-                LDA #$FF
+POTS            LDA #$20		;Timer PB6 Pulse Count Down
+                STA ACR			;Output to ACR
+                LDA #$FF		;Set Count register to $FFFF
                 STA TIL
                 STA TIH
                 STX UP			;Trigger One-shot
