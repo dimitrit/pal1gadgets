@@ -133,7 +133,7 @@ LOOP2           ASL A			;Shift left A-reg.
                 BIT UP			;Test DATA-IN
                 BPL MAKEIN		;DATA-IN is low
                 ORA #$01		;DATA-IN is high
-MAKEIN          LDY #$			;Reset CLOCK
+MAKEIN          LDY #$30		;Reset CLOCK
                 STY UP			;Output to userport
                 LDY #$38		;Set CLOCK
                 STY UP			;Output to userport
