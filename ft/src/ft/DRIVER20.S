@@ -41,7 +41,7 @@
 YFAC		EQU $D3A2		;Convert (Y) to floating
 AYFAC		EQU $D391		;Convert (A/Y) to floating
 CKCOM		EQU $CEFD		;Check for comma
-FACINT		EQU		;Convert floating to integer
+FACINT		EQU $D7A1		;Convert floating to integer
 GETBYTE		EQU $D79E		;Get byte expression
 		;**************************************
 		; Input and output registers
@@ -113,7 +113,7 @@ DOUT            STA UP			;Output to userport
 		; Uses X- and Y-registers
 		;**************************************
 BINP            SEI			;Disable interrupt
-                JSR $D7A1		;Convert arg. to integer
+                JSR FACINT		;Convert arg. to integer
                 CPX #$A0		;Analog input?
                 BEQ POTS		;Go to POTS
                 CPX #$90		;Analog input?
