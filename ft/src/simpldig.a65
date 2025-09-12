@@ -1,7 +1,7 @@
 ;
-; SIMPLE.A65 - A simple demo that enables the motor connected to M1.
-;              The direction of the motor is reversed by pressing the
-;              button connected to E1.
+; SIMPLDIG.A65 - A simple digital output/input demo that enables the motor
+; connected to M1. The direction of the motor is reversed by pressing the
+; button connected to E1.
 ;
 MTRDIR		EQU $C0
 PREVBTN		EQU $C1

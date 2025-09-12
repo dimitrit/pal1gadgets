@@ -7,20 +7,20 @@
 		;
 		; These routines require the ft interface to be
 		; connected to the PAL-1 6532 RIOT as following:
-		;     LOAD_OUT  [8] --- PB0
-		;      LOAD_IN  [7] --- PB1
-		;     DATA_OUT [10] --- PB2
-		;          CLK  [9] --- PB3
-		;    TRIGGER_X [11] --- PB4
-		;    TRIGGER_Y [12] --- PB5
-		;     COUNT_IN  [4] --- PB6
-		;  C64_DATA_IN [17] --- PB7
-		;          GND [20] --- GND
-		;       POTI_X [13] --- RC_C [15]
-		;       POTI_Y [14] --- RC_Y [16]
+		;            LOAD_OUT  [8] --- PB0
+		;             LOAD_IN  [7] --- PB1
+		;            DATA_OUT [10] --- PB2
+		;                 CLK  [9] --- PB3
+		;           TRIGGER_X [11] --- PB4
+		;           TRIGGER_Y [12] --- PB5
+		;  CENTRONICS_DATA_IN [18] --- PB7
+		;            COUNT_IN  [4] --- PA7
+		;                 GND [20] --- GND
+		;              POTI_X [13] --- RC_X [15]
+		;              POTI_Y [14] --- RC_Y [16]
 		;
 		;**************************************
-		; Interface control constants
+		; ft Interface control constants
 		;**************************************
 OFF		EQU %11111111
 CW		EQU %01010101
@@ -39,22 +39,20 @@ E5		EQU %00010000
 E6		EQU %00100000
 E7		EQU %01000000
 E8		EQU %10000000
+
 EX		EQU %10100000
 EY		EQU %10010000
 		;**************************************
-		; Input and output registers
+		; RIOT Input and output registers
 		;**************************************
-PBD		EQU $1702		; RIOT B data register
-PBDD		EQU $1703		; RIOT B data direction
-
-; TIL	EQU $DD04 		;Timer low register
-; TIH	EQU $DD05 		;Timer high register
-; TIC	EQU SDD0E 		;Timer control register
+PBD		EQU $1702		;RIOT B data register
+PBDD		EQU $1703		;RIOT B data direction
 		;**************************************
 		; Variables in the zero page
 		;**************************************
-AVAR		EQU $D0 		;output variable
-MASK		EQU $D1 		;mask variable
+AVAR		EQU $D0 		;Output variable
+MASK		EQU $D1 		;Mask variable
+CNTR		EQU $D3			;Counter variable
 		;**************************************
 		;Routines for output control
 		;Call in using the SYS command
@@ -81,20 +79,20 @@ STVAR		STA AVAR		;Save for output
 		; Output bit pattern in AVAR
 		; Uses A- and X-registers
 		;**************************************
-		LDA #$3F		;Set data direction
+		LDA #%00111111		;Set data direction
 		STA PBDD
 		LDX #$08		;Loop for 8 bits
-LOOP		LDA #$30		;static pattern userport
+LOOP		LDA #$30		;static pattern RIOT
 		ASL AVAR 		;Test output bit
 		BCC DOUT		;DATA-OUT low
 		ORA #$04		;DATA-OUT high
-DOUT		STA PBD			;Output to userport
+DOUT		STA PBD			;Output to RIOT
 		ORA #$08		;set CLOCK
-		STA PBD			;Output to userport
+		STA PBD			;Output to RIOT
 		DEX			;Loop counter
 		BNE LOOP		;end of LOOP
 		LDA #$39		;Set LOAD-OUT
-		STA PBD			;Output to userport
+		STA PBD			;Output to RIOT
 		STY AVAR		;Restore AVAR
 		CLI			;Enable interrupt
 		RTS			;Return to caller
@@ -104,11 +102,10 @@ DOUT		STA PBD			;Output to userport
 		; Result in Y register
 		;**************************************
 BINP		SEI			;Disable interrupt
-; 		JSR FACINT		;Convert arg. to integer
-; 		CPX #$A2		;Analog input?
-; 		BEQ POTS		;Go to POTS
-; 		CPX #$92		;Analog input?
-; 		BEQ POTS		;Go to POTS
+ 		CPX #$A0		;EX analog input?
+ 		BEQ POTS		;Go to POTS
+ 		CPX #$90		;EY analog input?
+		BEQ POTS		;Go to POTS
  		STX MASK		;Save input mask
 ; 		;**************************************
 ; 		; Interface Control
@@ -116,18 +113,18 @@ BINP		SEI			;Disable interrupt
 ; 		; Uses X- and Y-registers
 ; 		;**************************************
 		LDA #$32		;Set LOAD-IN
-		STA PBD			;Output to userport
+		STA PBD			;Output to RIOT
 		ORA #$08		;Set CLOCK
-		STA PBD			;Output to userport
+		STA PBD			;Output to RIOT
 		LDX #$08		;Loop counter for 8 bit
 LOOP2		ASL A			;Shift left A-reg.
 		BIT PBD			;Test DATA-IN
 		BPL MAKEIN		;DATA-IN is low
 		ORA #$01		;DATA-IN is high
 MAKEIN		LDY #$30		;Reset CLOCK
-		STY PBD			;Output to userport
+		STY PBD			;Output to RIOT
 		LDY #$38		;Set CLOCK
-		STY PBD			;Output to userport
+		STY PBD			;Output to RIOT
 		DEX			;Decrement loop counter
 		BNE LOOP2		;End of LOOP2
 		AND MASK		;Mask bit
@@ -143,28 +140,24 @@ END		CLI			;Enable interrupt
 ; 		; jumps here.
 ; 		; Uses A-, X- and Y-registers
 ; 		;**************************************
-; POTS	LDA #$FF		;Set Count register to $FFFF
-; 		STA TIL
-; 		STA TIH
-; 		LDA #$B9		;Set timer control reg.
-; 		STA TIC
-; 		STX PBD			;Trigger One-shot
-; 		LDX #$3A		;Reset trigger
-; 		STX PBD			;Output to userport
-; TST	LDA TIL			;Test timer low register
-; 		LDX #$03		;Delay loop
-; DELA	DEX
-; 		BNE DELAY
-; 		SEC			;Subtract timer low reg.
-; 		SBC TIL			;from previous value.
-; 		BNE TST			;Pulses still arriving?
-; 		LDX #$38		;Set CLOCK, reset LOAD-IN
-; 		STX PBD			;Output to userport
-; 		SEC 			;Calculate contents
-; 		LDA #$FF
-; 		SBC TIL 		;Low byte
-; 		TAY			;in Y register
-; 		LDA #$FF
-; 		SBC TIH			;High byte
-; 		JSR AYFAC		;Convert A/Y to floating
-; 		JMP END			;Return to caller
+POTS		LDA #$FF		;Reset Counter
+ 		STA CNTR
+		STA CNTR+1
+		TXA
+		EOR #$81 		;Trigger one shot
+		STA PBD			;Output to RIOT
+		LDX #$31		;Reset trigger
+		STX PBD			;Output to RIOT
+MEASUR		DEC CNTR		;Decrease low counter
+		BNE TST
+		DEC CNTR+1		;Decrease high counter
+		BEQ TIMEOUT		;Timed out
+TST		BIT PBD			;Check RIOT
+		BPL MEASUR		;COUNT_IN still low
+TIMEOUT		CLC			;Calculate return val
+		LDA #$FF
+		SBC CNTR
+		TAY
+		LDA #$FF
+		SBC CNTR+1
+		JMP END			;And done!
