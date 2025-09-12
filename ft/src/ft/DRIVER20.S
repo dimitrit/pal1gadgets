@@ -2,7 +2,7 @@
 		;
 		; (C) Artur Fischer Forschung, 1984
 		; Control of the fischertechnik Interface
-		; using the C64 SYS- and USR-commands
+		; using the VIC20 SYS- and USR-commands
 		; for output and input, respectively.
 		;
 		; Initializing:
@@ -31,7 +31,7 @@
 		;  CLOCK        PB3    F
 		;  TRIGGER-X    PB4    H
 		;  TRIGGER-Y    PB5    J
-		;  COUNT-IN     PB6    K
+		;  MMV_PULSES   PB6    K
 		;  DATA-IN      PB7    L
 		;**************************************
 		ORG $33C		;Program in free RAM area
@@ -153,7 +153,7 @@ CVAR            JSR $AFAC		;Convert to floating
 		; jumps here.
 		; Uses A-, X- and Y-registers
 		;**************************************
-POTS            LDA #$20		;Timer PB6 Pulse Count Down
+POTS            LDA #$20		;Use Timer Pulse Count Down
                 STA ACR			;Output to ACR
                 LDA #$FF		;Set Count register to $FFFF
                 STA TIL
