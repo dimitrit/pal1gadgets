@@ -1,0 +1,33 @@
+;
+; SIMPLDIG.A65 - A simple digital output/input demo that enables the motor
+; connected to M1. The direction of the motor is reversed by pressing the
+; button connected to E1.
+;
+MTRDIR		EQU $C0
+PREVBTN		EQU $C1
+;
+		ORG $200
+
+		LDA #0			; Initialise button state
+		STA PREVBTN
+		LDA #CW			; Motor direction Clockwise
+		STA MTRDIR
+		JSR INIT		; Initialise interface
+AGAIN		LDA #M1			; Use MOTOR1
+		LDX MTRDIR		; Get current direction
+		JSR BOUT		; And apply
+		LDX #E1			; Get E1 button input
+		JSR BINP
+		TYA			; Get button result
+		BEQ CONT		; If 0, not pressed
+		LDA PREVBTN		; Get previous button state
+		BNE AGAIN		; If not 0, was already pressed
+		LDA MTRDIR
+		EOR #$FF		; Invert motor direction
+		STA MTRDIR		;   and save
+CONT		STA PREVBTN		; Save button state
+		JMP AGAIN		; And loop
+
+		INCLUDE PALIFDRV.A65	; Load driver
+
+		END

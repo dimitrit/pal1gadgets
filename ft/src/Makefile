@@ -1,11 +1,11 @@
-target = simple.pap
+target = simpladc.pap simpldig.pap diagnostic.pap
 
 default: all
 
 all: $(target)
 
 %.pap: %.a65
-	vasm6502_oldstyle -dotdir $< -o $@ -L $(basename $<).lst -Fpap -quiet -esc
+	vasm6502_oldstyle $< -o $@ -L $(basename $<).lst -Fpap -esc
 
 clean:
 	@rm -f *.lst *.img *.com *.bin *.obj *.hex *.pap
