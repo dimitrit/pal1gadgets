@@ -4,7 +4,7 @@ default: all
 
 all: $(target)
 
-%.pap: %.a65
+%.pap: %.a65 palifdrv.a65
 	vasm6502_oldstyle $< -o $@ -L $(basename $<).lst -Fpap -esc
 
 clean:

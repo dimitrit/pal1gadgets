@@ -12,12 +12,12 @@ PREVBTN		EQU $C1
 		STA PREVBTN
 		LDA #CW			; Motor direction Clockwise
 		STA MTRDIR
-		JSR INIT		; Initialise interface
+		JSR FTINIT		; Initialise interface
 AGAIN		LDA #M1			; Use MOTOR1
 		LDX MTRDIR		; Get current direction
-		JSR BOUT		; And apply
+		JSR FTBOUTP		; And apply
 		LDX #E1			; Get E1 button input
-		JSR BINP
+		JSR FTBINP
 		TYA			; Get button result
 		BEQ CONT		; If 0, not pressed
 		LDA PREVBTN		; Get previous button state

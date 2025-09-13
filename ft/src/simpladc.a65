@@ -13,9 +13,9 @@ SCANDS		EQU $1F1F		; Show hex values on LED disp
 
 		LDA #0			; Set display to 00
 		STA INH
-		JSR INIT		; Initialise interface
+		JSR FTINIT		; Initialise interface
 AGAIN		LDX #EX			; Get EX analog input
-		JSR BINP
+		JSR FTBINP
 		STA POINTH		; Save the value
 		TYA
 		STA POINTL
