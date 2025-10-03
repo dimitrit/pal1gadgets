@@ -2,9 +2,10 @@
 		; PAL-1 Interface Driver Program
 		;**************************************
 		; This driver is based on the C64 driver
-		; (C) Artur Fischer Forschung, 1984
+		; Control of the fischertechnik Interface
+		; using the MS-BASIC SYS- and USR-commands
+		; for output and input, respectively.
 		;**************************************
-		;
 		; These routines require the ft interface to be
 		; connected to the PAL-1 6532 RIOT as following:
 		;            LOAD_OUT  [8] --- PB0
@@ -18,7 +19,6 @@
 		;                 GND [20] --- GND
 		;              POTI_X [13] --- RC_X [15]
 		;              POTI_Y [14] --- RC_Y [16]
-		;
 		;**************************************
 		; ft Interface control constants
 		;**************************************

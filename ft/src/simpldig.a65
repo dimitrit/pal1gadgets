@@ -3,9 +3,17 @@
 ; connected to M1. The direction of the motor is reversed by pressing the
 ; button connected to E1.
 ;
-MTRDIR		EQU $C0
-PREVBTN		EQU $C1
-;
+
+; KIM-1 standard addresses
+PADD		EQU $1741		; 6532-1 Port A data direction
+CONVD		EQU $1F48		; Convert and display function
+
+; Page Zero variables
+MTRDIR		EQU $C0			; Motor direction
+MTRDISP		EQU $C1			; Display segments
+DLYCNT		EQU $C2			; Delay counter
+PREVBTN		EQU $C3			; Previously pressed button
+
 		ORG $200
 
 		LDA #0			; Initialise button state
@@ -13,7 +21,34 @@ PREVBTN		EQU $C1
 		LDA #CW			; Motor direction Clockwise
 		STA MTRDIR
 		JSR FTINIT		; Initialise interface
-AGAIN		LDA #M1			; Use MOTOR1
+		LDA #$7F		; Initialise display i/o
+		STA PADD
+		LDA #$3E		; Initialise display segments
+		STA MTRDISP
+AGAIN		INC DLYCNT		; Do we need to rotate segments
+		BNE DISP		; No, go show them
+		LDA #$AF		; Re-initialise delay counter
+		STA DLYCNT
+ 		BIT MTRDIR		; Check current motor direction
+ 		BMI CLOCKWISE		; Go rotate display clockwise
+		LDA #$40		; Rotate disp counter clockwise
+		ORA MTRDISP
+		STA MTRDISP
+		ROR MTRDISP
+		BCS DISP		; Have we gone off the end?
+		LDA #$1F		; Yes, re-init display segments
+		BNE UPDATE
+CLOCKWISE	SEC			; Rotate display clockwise
+ 		ROL MTRDISP
+		BIT MTRDISP
+		BVS DISP		; Have we gone off the end?
+		LDA #$3E		; Yes, re-init display segments
+UPDATE		STA MTRDISP
+DISP		LDX #$13		; Init display loop
+		LDA MTRDISP		; Get display segments
+		AND #$3F		; Mask relevant segments
+		JSR CONVD+6		; And show them
+		LDA #M1			; Use MOTOR1
 		LDX MTRDIR		; Get current direction
 		JSR FTBOUTP		; And apply
 		LDX #E1			; Get E1 button input
@@ -28,6 +63,7 @@ AGAIN		LDA #M1			; Use MOTOR1
 CONT		STA PREVBTN		; Save button state
 		JMP AGAIN		; And loop
 
-		INCLUDE PALIFDRV.A65	; Load driver
+
+ 		INCLUDE PALIFDRV.A65	; Load driver
 
 		END
