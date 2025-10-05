@@ -16,8 +16,10 @@ The PAL1-ft adapter implements mostly the same logical connections as the fische
 | PB3       | CLOCK        | Data transfer clock |
 | PB4       | TRIGGER_X    | Trigger analog input X |
 | PB5       | TRIGGER_Y    | Trigger analog input Y |
-| PB7       | DATA_IN      | Digital data input stream |
-| PA7       | COUNT_IN     | Analog data input |
+| PB7       | DATA_IN<sup>*</sup>      | Digital data input stream |
+| PA7       | COUNT_IN     | Analog data input pulses |
+
+<sup>*</sup>The source of DATA_IN is determined by the Data Input Select Jumper. See documentation for details. 
 
 Since the 6532 RIOT timer does not support a pulsed count down mode, the adapter instead routes the analog input to PA7, thereby enabling the use of the RIOT's edge sense interrupt feature. Alternatively, it is possible to measure analog inputs by calculating the time DATA_IN remains LOW after triggering an analog input. For this it is necessary to move the Data Input Select jumper to the CENTRONICS position.
 
