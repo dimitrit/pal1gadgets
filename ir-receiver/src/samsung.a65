@@ -1,0 +1,119 @@
+;
+; SAMSUNG.A65 - A simple IR receiver demo
+;
+
+;**************************************
+; Page Zero variables
+;**************************************
+COUNT		EQU $C0
+
+;**************************************
+; KIM-1 ROM Routines
+;**************************************
+CRLF		EQU $1E2F		; Output CR/LF to TTY
+OUTCH		EQU $1EA0		; Output A to TTY
+
+;**************************************
+; RIOT registers
+;**************************************
+PAD		EQU $1700		; RIOT A data register
+PADD		EQU $1701		; RIOT A data direction
+TIMER		EQU $1704		; RIOT read timer
+CLK8T		EQU $1705		; RIOT set timer T/8, no IRQ
+CLK64T		EQU $1706		; RIOT set timer T/64, no IRQ
+
+		ORG $200
+
+; Initialise
+		CLD			; Clear decimal mode
+		SEI			; Disable interrupts
+		LDA #31
+		STA COUNT		; Process 32 bits
+		LDA #0
+		STA PADD		; Set all RIOT A pins input
+		LDY #35
+CLRBUF		STA BUFFER,Y		; Clear read and result buffers
+		DEY
+		BPL CLRBUF
+; Get IR header
+		LDX #1
+		JSR IRREAD		; Get header
+; Get all 32 bits of data
+		LDX #0
+GETBIT		JSR IRREAD		; Get data bit
+		LDY COUNT		; Get buffer pointer
+		STA BUFFER,Y		; And store
+		DEC COUNT		; Decrease bit count
+		BPL GETBIT		; Not done processing
+		CLI			; Enable interrupts
+
+; Process the data received
+SKIP		LDA #0
+		STA COUNT		; Reset counter
+PROCESS		LDA COUNT		; Get current counter
+		LSR			; Div /2
+		LSR			; Div /2
+		LSR			; Div /2
+		TAX
+		LDY COUNT
+		LDA BUFFER,Y		; Get data
+		EOR #$80		; Flip MSB
+		ROL			; Move MSB into Carry
+		ROL RESULT,X		; And into result
+		INC COUNT
+		LDA COUNT
+		CMP #32
+		BNE PROCESS
+;
+		JSR CRLF
+		LDX #0
+PRINT		LDA RESULT,X
+		JSR OUTHEX
+		INX
+		CPX #4
+		BNE PRINT
+		BRK
+;
+OUTHEX		PHA			; Save value to be printed
+		LSR			; Move high nibble to low
+		LSR
+		LSR
+		LSR
+		AND #$F			; Keep only lower 4 bits
+		JSR OUTNIB		; And send to TTY
+		PLA			; Restore value
+		AND #$F			; Leep lower 4 bits
+		JSR OUTNIB		; And
+		RTS
+OUTNIB		CLC			; Clear carry
+		ADC #'0'		; Add ASCII 0
+		CMP #':'		; Is value greater than '9'?
+		BMI CHOUT		; No, go print
+		ADC #6			; Adjust for ASCII 'A', etc
+CHOUT		JSR OUTCH		; Print character on TTY
+		RTS
+
+; Read IR data
+IRREAD		LDA #$FF
+MARK		BIT PAD			; Check pin A7
+		BMI MARK		; Keep checking until low
+		STA CLK8T,X		; Start timer
+MIDMARK		BIT PAD			; Check pin A7
+		BPL MIDMARK		; Keep checking until high
+		LDY TIMER		; Read timer
+		STA CLK8T,X		; Re-start timer
+ENDMARK		BIT PAD			; Check pin A7
+		BMI ENDMARK		; cheel checking until low
+		LDA TIMER		; Read timer
+		RTS
+;
+; SAMPLEDATA		BYTE $2B,$2B,$2B,$2B, $B7,$2B,$2B,$B7	; 1111 0110 FA
+; 		BYTE $B7,$B7,$B6,$B7, $2B,$B7,$B7,$2C	; 0000 1001 05
+; 		BYTE $B7,$B7,$B7,$B7, $B7,$2C,$2C,$2B	; 0000 0111 07
+; 		BYTE $B6,$B7,$B7,$B7, $B7,$2B,$2B,$2B	; 0000 0111 07
+
+BUFFER		FILL 32			; IR receive buffer
+RESULT		FILL 4			; Result buffer
+
+
+		END
