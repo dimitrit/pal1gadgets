@@ -1,0 +1,216 @@
+;
+; NEC.A65 - A simple IR receiver demo implementing the extended
+;           NEC protocol, ie. 16 bit address, 8 bit command
+;
+
+;**************************************
+; Page Zero variables
+;**************************************
+BUFPTR		EQU $C0
+LEDMASK		EQU $C2
+TEMP		EQU $C4
+
+;**************************************
+; KIM-1 ROM Routines
+;**************************************
+CRLF		EQU $1E2F		; Output CR/LF to TTY
+OUTCH		EQU $1EA0		; Output A to TTY
+
+;**************************************
+; RIOT registers
+;**************************************
+PAD		EQU $1700		; RIOT A data register
+PADD		EQU $1701		; RIOT A data direction
+PBD		EQU $1702		; RIOT B data register
+PBDD		EQU $1703		; RIOT B data direction
+;
+TIMER		EQU $1704		; RIOT read timer
+CLK8T		EQU $1705		; RIOT set timer T/8, no IRQ
+CLK64T		EQU $1706		; RIOT set timer T/64, no IRQ
+
+		ORG $200
+
+; Initialise
+		CLD			; Clear decimal mode
+		LDA #$FF		; All LEDs off
+		STA LEDMASK		; Init LED mask
+		STA LEDMASK+1
+		LDA #%00011111		; Pn0-Pn4 out pins, others in
+		STA PADD		; Set RIOT A data direction
+		STA PBDD		; Set RIOT B data direction
+; Main loop
+MAIN		LDA LEDMASK
+		STA PAD
+		LDA LEDMASK+1
+		STA PBD
+		JSR CRLF		; Send cr/lf to TTY
+		JSR IRINP		; Read IR data, result in RESULT
+		LDX #0
+PRINT		LDA RESULT,X		; Get byte of result
+		JSR OUTHEX		; And output to TTY in hex
+		INX
+		CPX #3			; All 3 bytes printed?
+		BNE PRINT		; No, print next
+; Find function
+ 		LDY #0
+ 		LDX #0
+		STX TEMP
+ 		STY BUFPTR		; Use pointer as temp variable
+		STX BUFPTR+1
+		; LDA #'*'
+		; JSR OUTCH
+FIND		LDY BUFPTR
+ 		LDA IRCODES,Y
+		; PHA
+		LDX BUFPTR+1
+ 		; LDA RESULT,X
+		; JSR OUTHEX
+		; PLA
+ 		CMP RESULT,X
+ 		BEQ NEXT
+		; LDA #'x'
+		; JSR OUTCH
+		LDA #1
+		STA TEMP
+NEXT		;LDA #'='
+		;JSR OUTCH
+		INC BUFPTR+1
+		LDA BUFPTR+1
+		CMP #3
+		BNE NEXT1
+		; LDA #'^'
+		; JSR OUTCH
+		; LDA TEMP
+		; JSR OUTHEX
+		LDA TEMP
+		CMP #0
+		BEQ FOUND
+		INC BUFPTR		; skip over result code
+		; JSR CRLF
+		LDA #0			; reset RESULT pointer
+		STA BUFPTR+1
+		STA TEMP		; reset found
+NEXT1		INC BUFPTR
+		LDA BUFPTR
+		; JSR OUTHEX
+		; LDA BUFPTR
+		CMP #40
+		BNE FIND
+		; LDA #'@'
+		; JSR OUTCH
+		JMP MAIN
+
+FOUND		LDA #':'
+		JSR OUTCH
+		LDY BUFPTR
+		INY
+		LDA IRCODES,Y
+		STA TEMP
+		JSR OUTHEX
+		LDA TEMP
+		BIT TEMP
+		BMI HIGH
+		EOR LEDMASK
+		STA LEDMASK
+		JMP MAIN
+HIGH		EOR LEDMASK+1
+		STA LEDMASK+1
+		JMP MAIN
+
+
+
+IRINP		SEI			; Disable interrupts
+		LDA #31			; Process 32 bits
+		STA BUFPTR		; Initialise pointer
+		LDA #0
+		LDY #35			; Clear read and result buffers
+CLRBUF		STA BUFFER,Y
+		DEY			; Decrease pointer
+		BPL CLRBUF		; Not done yet
+		LDX #1			; Use T/64 timer
+		JSR IRREAD		; Get header
+; TODO - validate header here
+		LDX #0			; Use T/8 timer
+GETBIT		JSR IRREAD		; Get a single bit of data
+		LDY BUFPTR		; Get buffer pointer
+		STA BUFFER,Y		; And store
+		DEC BUFPTR		; Decrease pointer
+		BPL GETBIT		; Not done processing
+		CLI			; Enable interrupts
+		LDA #0			; Now process the data received
+		STA BUFPTR		; Reset buffer pointer
+PROCESS		LDA BUFPTR		; Calculate result pointer
+		LSR			; Div /2
+		LSR			; Div /2
+		LSR			; Div /2
+		TAX			; Save result pointer in X
+		LDY BUFPTR		; Get data pointer
+		LDA BUFFER,Y		; Get data at pointer
+		EOR #$80		; Flip MSB
+		ROL			; Move MSB into Carry
+		ROL RESULT,X		; And into result
+		INC BUFPTR		; Increase pointer
+		LDA BUFPTR
+		CMP #32			; Have we processed all data
+		BNE PROCESS		; No, get next bit
+		; Validate result
+		LDA RESULT+2		; Get command byte
+		EOR #$FF		; And invert
+		CMP RESULT+3		; Check against
+		BNE ERROR
+		RTS			; All Good, return
+ERROR		LDA #0			; Clear result
+		LDX #3
+CLRRES		STA BUFFER,X
+		DEX
+		BPL CLRRES
+		RTS			; Done!
+;
+OUTHEX		PHA			; Save value to be printed
+		LSR			; Move high nibble to low
+		LSR
+		LSR
+		LSR
+		AND #$F			; Keep only lower 4 bits
+		JSR OUTNIB		; And send to TTY
+		PLA			; Restore value
+		AND #$F			; Leep lower 4 bits
+		JSR OUTNIB		; And send to TTY
+		RTS
+OUTNIB		CLC			; Clear carry
+		ADC #'0'		; Add ASCII 0
+		CMP #':'		; Is value greater than '9'?
+		BMI CHOUT		; No, go print
+		ADC #6			; Adjust for ASCII 'A', etc
+CHOUT		JSR OUTCH		; Print character on TTY
+		RTS
+; Read a single IR data item
+IRREAD		LDA #$FF		; Use max timer
+MARK		BIT PAD			; Check pin A7
+		BMI MARK		; Keep checking until low
+		STA CLK8T,X		; Start timer
+MIDMARK		BIT PAD			; Check pin A7
+		BPL MIDMARK		; Keep checking until high
+		LDY TIMER		; Read timer
+		STA CLK8T,X		; Re-start timer
+ENDMARK		BIT PAD			; Check pin A7
+		BMI ENDMARK		; cheel checking until low
+		LDA TIMER		; Read timer
+		RTS
+
+; LAFVIN IR function codes
+IRCODES		BYTE $E9,$16,$FF,$01	; 1
+		BYTE $E6,$19,$FF,$02	; 2
+		BYTE $F2,$0D,$FF,$04	; 3
+		BYTE $F3,$0C,$FF,$08	; 4
+		BYTE $E7,$18,$FF,$10	; 5
+		BYTE $A1,$5E,$FF,$81	; 6
+		BYTE $F7,$08,$FF,$82	; 7
+		BYTE $E3,$1C,$FF,$84	; 8
+		BYTE $A5,$5A,$FF,$88	; 9
+		BYTE $AD,$52,$FF,$90	; 0
+;
+BUFFER		FILL 32			; IR receive buffer
+RESULT		FILL 4			; Result buffer
+
+		END

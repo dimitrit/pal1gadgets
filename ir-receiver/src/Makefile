@@ -1,10 +1,10 @@
-target = samsung.pap
+target = samsung.pap nec.pap
 
 default: all
 
 all: $(target)
 
-%.pap: %.a65 
+%.pap: %.a65
 	vasm6502_oldstyle $< -o $@ -L $(basename $<).lst -Fpap -esc -ignore-mult-inc
 
 clean:
